@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teacher Dashboard – Makerverse</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <header class="dash-header">
+      <h1>🎮 Makerverse</h1>
+      <span>👩‍🏫 Teacher Panel</span>
+      <a href="index.html" class="btn-logout">Logout</a>
+    </header>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <h3>👨‍🎓 Students</h3>
+        <p id="student-count">3</p>
+      </div>
+      <div class="stat-card">
+        <h3>📚 Quests</h3>
+        <p id="quest-count">3</p>
+      </div>
+      <div class="stat-card">
+        <h3>🏆 Top XP</h3>
+        <p id="top-xp">300 XP</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>➕ Add New Quest</h2>
+      <div class="add-quest-form">
+        <input type="text" id="quest-name" placeholder="Quest name..." />
+        <input type="number" id="quest-xp" placeholder="XP reward..." />
+        <button onclick="addQuest()">Add Quest</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Student List</h2>
+      <div class="student-list" id="student-list">
+        <div class="student-card">
+          <span>👤 Alice</span>
+          <span class="xp-badge">300 XP</span>
+          <button onclick="awardXP(this)">+50 XP Bonus</button>
+        </div>
+        <div class="student-card">
+          <span>👤 Bob</span>
+          <span class="xp-badge">150 XP</span>
+          <button onclick="awardXP(this)">+50 XP Bonus</button>
+        </div>
+        <div class="student-card">
+          <span>👤 Carol</span>
+          <span class="xp-badge">50 XP</span>
+          <button onclick="awardXP(this)">+50 XP Bonus</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📚 Quest List</h2>
+      <div id="quest-list">
+        <div class="quest-card">
+          <span>📖 Read Chapter 1</span>
+          <span class="xp-badge">50 XP</span>
+        </div>
+        <div class="quest-card">
+          <span>✏️ Answer Quiz 1</span>
+          <span class="xp-badge">100 XP</span>
+        </div>
+        <div class="quest-card">
+          <span>🔬 Submit Lab Report</span>
+          <span class="xp-badge">150 XP</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
