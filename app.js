@@ -25,7 +25,7 @@ let xp = 0;
 
 function completeQuest(btn, points) {
   xp += points;
-  document.getElementById('xp-points').textContent = xp + ' XP';
+  document.getElementById('xp-points').textContent = xp + ' Points';
   const level = Math.floor(xp / 100) + 1;
   document.getElementById('level').textContent = 'Level ' + level;
   btn.parentElement.classList.add('done');
