@@ -50,6 +50,7 @@ function addQuest() {
   const name = document.getElementById('quest-name').value;
   const xpVal = document.getElementById('quest-xp').value;
   if (!name || !xpVal) { alert('Please fill in both fields!'); return; }
+  if (parseInt(xpVal) <= 0) { alert('XP reward must be greater than 0!'); return; }
 
   const list = document.getElementById('quest-list');
   const card = document.createElement('div');
