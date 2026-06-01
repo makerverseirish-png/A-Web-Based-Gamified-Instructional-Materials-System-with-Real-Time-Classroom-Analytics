@@ -1,0 +1,30 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; }
+
+.hero {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100vh; text-align: center;
+}
+.hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+.hero p { font-size: 1.2rem; color: #aaa; margin-bottom: 2rem; }
+
+.login-buttons { display: flex; gap: 1rem; }
+.btn { padding: 0.8rem 2rem; border-radius: 8px; text-decoration: none;
+  font-size: 1rem; font-weight: bold; }
+.btn-student { background: #4f46e5; color: #fff; }
+.btn-teacher { background: #10b981; color: #fff; }
+
+.login-box {
+  max-width: 400px; margin: 10vh auto; background: #1e1e2e;
+  padding: 2rem; border-radius: 12px; text-align: center;
+}
+.login-box h2 { margin-bottom: 1.5rem; }
+.login-box input {
+  width: 100%; padding: 0.7rem; margin: 0.5rem 0;
+  border-radius: 8px; border: none; background: #2a2a3e; color: #fff;
+}
+.login-box button {
+  width: 100%; padding: 0.8rem; margin-top: 1rem;
+  background: #4f46e5; color: #fff; border: none;
+  border-radius: 8px; font-size: 1rem; cursor: pointer;
+}
