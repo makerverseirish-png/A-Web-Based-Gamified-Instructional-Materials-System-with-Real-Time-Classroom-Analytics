@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gamified Learning System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="hero">
+    <h1>🎮 Makerverse Learning</h1>
+    <p>Learn. Earn Points. Level Up!</p>
+    <div class="login-buttons">
+      <a href="student-login.html" class="btn btn-student">Student Login</a>
+      <a href="teacher-login.html" class="btn btn-teacher">Teacher Login</a>
+    </div>
+  </div>
+</body>
+</html>
