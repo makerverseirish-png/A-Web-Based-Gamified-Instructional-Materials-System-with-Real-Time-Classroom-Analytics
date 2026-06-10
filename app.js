@@ -21,19 +21,19 @@ function teacherLogin() {
     alert('Please enter username and password.');
   }
 }
-let xp = 0;
+let points = 0;
 
 function completeQuest(btn, points) {
-  xp += points;
-  document.getElementById('xp-points').textContent = xp + ' Points';
-  const level = Math.floor(xp / 100) + 1;
+  points += points;
+  document.getElementById('points-points').textContent = points + ' Points';
+  const level = Math.floor(points / 100) + 1;
   document.getElementById('level').textContent = 'Level ' + level;
   btn.parentElement.classList.add('done');
   btn.disabled = true;
   btn.textContent = '✅ Done';
 
-  if (xp >= 50) unlockBadge(0);
-  if (xp >= 100) unlockBadge(1);
+  if (points >= 50) unlockBadge(0);
+  if (points >= 100) unlockBadge(1);
 }
 
 function unlockBadge(index) {
@@ -48,14 +48,14 @@ window.onload = function() {
 }
 function addQuest() {
   const name = document.getElementById('quest-name').value;
-  const xpVal = document.getElementById('quest-xp').value;
-  if (!name || !xpVal) { alert('Please fill in both fields!'); return; }
-  if (parseInt(xpVal) <= 0) { alert('XP reward must be greater than 0!'); return; }
+  const pointsVal = document.getElementById('quest-points').value;
+  if (!name || !pointsVal) { alert('Please fill in both fields!'); return; }
+  if (parseInt(pointsVal) <= 0) { alert('points reward must be greater than 0!'); return; }
 
   const list = document.getElementById('quest-list');
   const card = document.createElement('div');
   card.className = 'quest-card';
-  card.innerHTML = `<span>📌 ${name}</span><span class="xp-badge">${xpVal} XP</span>`;
+  card.innerHTML = `<span>📌 ${name}</span><span class="points-badge">${pointsVal} points</span>`;
   list.appendChild(card);
 
   const count = document.getElementById('quest-count');
