@@ -23,8 +23,8 @@
         <p id="quest-count">3</p>
       </div>
       <div class="stat-card">
-        <h3>🏆 Top XP</h3>
-        <p id="top-xp">300 XP</p>
+        <h3>🏆 Top points</h3>
+        <p id="top-points">300 points</p>
       </div>
     </div>
 
@@ -32,7 +32,7 @@
       <h2>➕ Add New Quest</h2>
       <div class="add-quest-form">
         <input type="text" id="quest-name" placeholder="Quest name..." />
-        <input type="number" id="quest-xp" placeholder="XP reward..." />
+        <input type="number" id="quest-points" placeholder="points reward..." />
         <button onclick="addQuest()">Add Quest</button>
       </div>
     </div>
@@ -42,18 +42,18 @@
       <div class="student-list" id="student-list">
         <div class="student-card">
           <span>👤 Alice</span>
-          <span class="xp-badge">300 XP</span>
-          <button onclick="awardXP(this)">+50 XP Bonus</button>
+          <span class="points-badge">300 points</span>
+          <button onclick="awardpoints(this)">+50 points Bonus</button>
         </div>
         <div class="student-card">
           <span>👤 Bob</span>
-          <span class="xp-badge">150 XP</span>
-          <button onclick="awardXP(this)">+50 XP Bonus</button>
+          <span class="points-badge">150 points</span>
+          <button onclick="awardpoints(this)">+50 points Bonus</button>
         </div>
         <div class="student-card">
           <span>👤 Carol</span>
-          <span class="xp-badge">50 XP</span>
-          <button onclick="awardXP(this)">+50 XP Bonus</button>
+          <span class="points-badge">50 points</span>
+          <button onclick="awardpoints(this)">+50 points Bonus</button>
         </div>
       </div>
     </div>
@@ -63,15 +63,15 @@
       <div id="quest-list">
         <div class="quest-card">
           <span>📖 Read Chapter 1</span>
-          <span class="xp-badge">50 XP</span>
+          <span class="points-badge">50 points</span>
         </div>
         <div class="quest-card">
           <span>✏️ Answer Quiz 1</span>
-          <span class="xp-badge">100 XP</span>
+          <span class="points-badge">100 points</span>
         </div>
         <div class="quest-card">
           <span>🔬 Submit Lab Report</span>
-          <span class="xp-badge">150 XP</span>
+          <span class="points-badge">150 points</span>
         </div>
       </div>
     </div>
