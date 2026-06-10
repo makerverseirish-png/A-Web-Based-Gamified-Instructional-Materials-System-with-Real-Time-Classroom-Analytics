@@ -1,73 +1,324 @@
-function studentLogin() {
-  const user = document.getElementById('username').value;
-  const pass = document.getElementById('password').value;
-  if (user && pass) {
-    localStorage.setItem('role', 'student');
-    localStorage.setItem('username', user);
-    window.location.href = 'student-dashboard.html';
-  } else {
-    alert('Please enter username and password.');
+// =============================================
+// iRISE - Connected to Google Sheets
+// =============================================
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMp1p5VBgV0eSKrhhgTBHTgrd3_GeJ5_CRw2rRr78jAx2Ht0VI0z5q0Idnc2sNfXERMQ/exec';
+
+// =============================================
+// STUDENT LOGIN
+// =============================================
+async function studentLogin() {
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value.trim();
+  const section = document.getElementById('section').value.trim();
+
+  if (!user || !pass || !section) {
+    alert('Please enter username, password, and section.');
+    return;
+  }
+
+  try {
+    showLoading('Logging in...');
+    const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&section=${encodeURIComponent(section)}`);
+    const data = await res.json();
+
+    if (data.success) {
+      localStorage.setItem('role', 'student');
+      localStorage.setItem('username', user);
+      localStorage.setItem('section', section);
+      window.location.href = 'student-dashboard.html';
+    } else {
+      hideLoading();
+      alert('Invalid username or password. Please try again.');
+    }
+  } catch (err) {
+    hideLoading();
+    alert('Connection error. Please check your internet and try again.');
   }
 }
 
+// =============================================
+// TEACHER LOGIN (hardcoded for security)
+// =============================================
 function teacherLogin() {
-  const user = document.getElementById('username').value;
-  const pass = document.getElementById('password').value;
-  if (user && pass) {
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value.trim();
+
+  // Change these credentials as needed
+  if (user === 'teacher' && pass === 'irise2024') {
     localStorage.setItem('role', 'teacher');
     localStorage.setItem('username', user);
     window.location.href = 'teacher-dashboard.html';
   } else {
-    alert('Please enter username and password.');
+    alert('Invalid teacher credentials.');
   }
 }
-let points = 0;
 
-function completeQuest(btn, points) {
-  points += points;
-  document.getElementById('points-points').textContent = points + ' Points';
-  const level = Math.floor(points / 100) + 1;
-  document.getElementById('level').textContent = 'Level ' + level;
-  btn.parentElement.classList.add('done');
-  btn.disabled = true;
-  btn.textContent = '✅ Done';
-
-  if (points >= 50) unlockBadge(0);
-  if (points >= 100) unlockBadge(1);
-}
-
-function unlockBadge(index) {
-  const badges = document.querySelectorAll('.badge');
-  badges[index].classList.remove('locked');
-  badges[index].classList.add('unlocked');
-}
-
-window.onload = function() {
+// =============================================
+// STUDENT DASHBOARD - Load Data
+// =============================================
+window.onload = async function () {
+  const role = localStorage.getItem('role');
   const name = localStorage.getItem('username');
-  if (name) document.getElementById('welcome-msg').textContent = 'Welcome, ' + name + '!';
+  const section = localStorage.getItem('section');
+
+  // Welcome message
+  const welcomeEl = document.getElementById('welcome-msg');
+  if (welcomeEl && name) {
+    welcomeEl.textContent = 'Welcome, ' + name + '!';
+  }
+
+  // Load student dashboard data
+  if (role === 'student' && name && section) {
+    await loadStudentData(name, section);
+  }
+
+  // Load teacher dashboard data
+  if (role === 'teacher') {
+    const sectionSelect = document.getElementById('section-select');
+    if (sectionSelect) {
+      sectionSelect.addEventListener('change', () => {
+        loadTeacherData(sectionSelect.value);
+      });
+    }
+  }
+};
+
+// =============================================
+// LOAD STUDENT DATA FROM GOOGLE SHEETS
+// =============================================
+async function loadStudentData(username, section) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(section)}`);
+    const students = await res.json();
+
+    const student = students.find(s => s.name === username);
+    if (!student) return;
+
+    // Update points display
+    const q1El = document.getElementById('quest1-points');
+    const q2El = document.getElementById('quest2-points');
+    const q3El = document.getElementById('quest3-points');
+    const totalEl = document.getElementById('total-points');
+
+    if (q1El) q1El.textContent = (student.quest1 || 0) + ' Points';
+    if (q2El) q2El.textContent = (student.quest2 || 0) + ' Points';
+    if (q3El) q3El.textContent = (student.quest3 || 0) + ' Points';
+    if (totalEl) totalEl.textContent = (student.total || 0) + ' Points';
+
+    // Update level
+    const total = student.total || 0;
+    const level = Math.floor(total / 100) + 1;
+    const levelEl = document.getElementById('level');
+    if (levelEl) levelEl.textContent = 'Level ' + level;
+
+    // Unlock badges
+    if (total >= 50) unlockBadge(0);
+    if (total >= 100) unlockBadge(1);
+
+    // Load leaderboard
+    loadLeaderboard(students, section);
+
+  } catch (err) {
+    console.error('Failed to load student data:', err);
+  }
 }
+
+// =============================================
+// LEADERBOARD - Per Quest Ranking
+// =============================================
+function loadLeaderboard(students, section) {
+  const leaderboardEl = document.getElementById('leaderboard');
+  if (!leaderboardEl) return;
+
+  // Sort by total points
+  const sorted = [...students]
+    .filter(s => s.name)
+    .sort((a, b) => (b.total || 0) - (a.total || 0));
+
+  let html = `<h3>🏆 Leaderboard - ${section}</h3>`;
+  html += `<table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Quest 1</th>
+        <th>Quest 2</th>
+        <th>Quest 3</th>
+        <th>Total Points</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  sorted.forEach((s, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    html += `<tr>
+      <td>${medal}</td>
+      <td>${s.name}</td>
+      <td>${s.quest1 || '-'}</td>
+      <td>${s.quest2 || '-'}</td>
+      <td>${s.quest3 || '-'}</td>
+      <td><strong>${s.total || 0}</strong></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  leaderboardEl.innerHTML = html;
+}
+
+// =============================================
+// TEACHER - LOAD SECTION DATA
+// =============================================
+async function loadTeacherData(section) {
+  if (!section) return;
+  try {
+    showLoading('Loading students...');
+    const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(section)}`);
+    const students = await res.json();
+    hideLoading();
+
+    // Update student count
+    const countEl = document.getElementById('student-count');
+    if (countEl) countEl.textContent = students.filter(s => s.name).length;
+
+    // Load student list
+    const listEl = document.getElementById('student-list');
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+    students.filter(s => s.name).forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'student-card';
+      card.innerHTML = `
+        <span class="student-name">👤 ${s.name}</span>
+        <span class="points-badge">${s.total || 0} Points</span>
+        <button class="bonus-btn" onclick="awardBonus('${s.name}', '${section}')">+50 Bonus</button>
+      `;
+      listEl.appendChild(card);
+    });
+
+  } catch (err) {
+    hideLoading();
+    console.error('Failed to load teacher data:', err);
+  }
+}
+
+// =============================================
+// TEACHER - ADD QUEST
+// =============================================
 function addQuest() {
-  const name = document.getElementById('quest-name').value;
-  const pointsVal = document.getElementById('quest-points').value;
-  if (!name || !pointsVal) { alert('Please fill in both fields!'); return; }
-  if (parseInt(pointsVal) <= 0) { alert('points reward must be greater than 0!'); return; }
+  const name = document.getElementById('quest-name').value.trim();
+  const pointsVal = document.getElementById('quest-points').value.trim();
+
+  if (!name || !pointsVal) {
+    alert('Please fill in both fields!');
+    return;
+  }
+  if (parseInt(pointsVal) <= 0) {
+    alert('Points reward must be greater than 0!');
+    return;
+  }
 
   const list = document.getElementById('quest-list');
   const card = document.createElement('div');
   card.className = 'quest-card';
-  card.innerHTML = `<span>📌 ${name}</span><span class="points-badge">${pointsVal} points</span>`;
+  card.innerHTML = `<span>📌 ${name}</span><span class="points-badge">${pointsVal} Points</span>`;
   list.appendChild(card);
 
   const count = document.getElementById('quest-count');
-  count.textContent = parseInt(count.textContent) + 1;
+  if (count) count.textContent = parseInt(count.textContent) + 1;
 
   document.getElementById('quest-name').value = '';
-  document.getElementById('quest-xp').value = '';
+  document.getElementById('quest-points').value = '';
 }
 
-function awardXP(btn) {
-  const card = btn.parentElement;
-  const xpSpan = card.querySelector('.xp-badge');
-  const current = parseInt(xpSpan.textContent);
-  xpSpan.textContent = (current + 50) + ' XP';
+// =============================================
+// TEACHER - AWARD BONUS POINTS
+// =============================================
+async function awardBonus(username, section) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=awardBonus&username=${encodeURIComponent(username)}&section=${encodeURIComponent(section)}&bonus=50`);
+    const data = await res.json();
+    if (data.success) {
+      alert(`+50 Bonus Points awarded to ${username}! ✅`);
+      loadTeacherData(section);
+    }
+  } catch (err) {
+    console.error('Failed to award bonus:', err);
+  }
+}
+
+// =============================================
+// COMPLETE QUEST (Student Side)
+// =============================================
+async function completeQuest(btn, questName, points) {
+  const username = localStorage.getItem('username');
+  const section = localStorage.getItem('section');
+
+  if (!username || !section) return;
+
+  try {
+    btn.disabled = true;
+    btn.textContent = '⏳ Saving...';
+
+    const res = await fetch(`${SCRIPT_URL}?action=updatePoints&username=${encodeURIComponent(username)}&section=${encodeURIComponent(section)}&quest=${encodeURIComponent(questName)}&points=${points}`);
+    const data = await res.json();
+
+    if (data.success) {
+      btn.parentElement.classList.add('done');
+      btn.textContent = '✅ Done';
+      await loadStudentData(username, section);
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Complete';
+      alert('Failed to save. Please try again.');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Complete';
+    alert('Connection error. Please try again.');
+  }
+}
+
+// =============================================
+// UNLOCK BADGE
+// =============================================
+function unlockBadge(index) {
+  const badges = document.querySelectorAll('.badge');
+  if (badges[index]) {
+    badges[index].classList.remove('locked');
+    badges[index].classList.add('unlocked');
+  }
+}
+
+// =============================================
+// LOGOUT
+// =============================================
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+// =============================================
+// LOADING HELPERS
+// =============================================
+function showLoading(msg = 'Loading...') {
+  let el = document.getElementById('loading-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; color: white; font-size: 1.2rem;
+    `;
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = 'flex';
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  if (el) el.style.display = 'none';
 }
