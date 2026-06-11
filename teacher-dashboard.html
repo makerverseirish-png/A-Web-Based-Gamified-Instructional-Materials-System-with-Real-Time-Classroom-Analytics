@@ -4,6 +4,18 @@
   <meta charset="UTF-8" />
   <title>Teacher Dashboard – Makerverse</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Quick styling to make the forms look perfect inside the dashboard layout */
+    .add-quest-form { display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin-top: 15px; }
+    .add-quest-form input, .add-quest-form select, .add-quest-form textarea {
+      width: 100%; padding: 10px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 6px; box-sizing: border-box;
+    }
+    .add-quest-form button {
+      padding: 12px; background: #4f46e5; border: none; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s;
+    }
+    .add-quest-form button:hover { background: #4338ca; }
+    .nested-container.hidden { display: none; }
+  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -20,7 +32,8 @@
       </div>
       <div class="stat-card">
         <h3>📚 Quests</h3>
-        <p id="quest-count">0</p> </div>
+        <p id="quest-count">0</p>
+      </div>
       <div class="stat-card">
         <h3>🏆 Top points</h3>
         <p id="top-points">0 points</p>
@@ -29,11 +42,11 @@
 
     <div class="section">
       <h2>➕ Add New Quest</h2>
-      <div class="add-quest-form" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px;">
+      <div class="add-quest-form">
         
         <div class="form-group">
           <label for="quest-template-type" style="color: #aaa; display: block; margin-bottom: 5px; font-size: 0.9rem;">Activity Template Type:</label>
-          <select id="quest-template-type" onchange="handleTemplateChange()" style="width: 100%; padding: 10px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 6px;">
+          <select id="quest-template-type" onchange="handleTemplateChange()">
             <option value="custom">✨ Custom Text Quest</option>
             <option value="multiple-choice">📝 Multiple Choice Quiz Template</option>
           </select>
@@ -41,23 +54,23 @@
 
         <input type="text" id="quest-name" placeholder="Quest name..." />
         
-        <div id="template-editor-box" style="padding: 12px; background: #161623; border-left: 4px solid #4f46e5; border-radius: 4px;">
+        <div id="template-editor-box" style="padding: 15px; background: #161623; border-left: 4px solid #4f46e5; border-radius: 4px;">
           <div id="custom-fields">
-            <textarea id="quest-desc" placeholder="Provide task instructions for the students here..." style="width: 100%; height: 60px; padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px; resize: none;"></textarea>
+            <textarea id="quest-desc" placeholder="Provide task instructions for the students here..." style="height: 70px; resize: none;"></textarea>
           </div>
 
           <div id="multiple-choice-fields" style="display: none;">
-            <p style="color: #ff9f43; font-size: 0.85rem; margin-bottom: 10px;">💡 Type your question text and choices below. Students will answer this in their portals.</p>
-            <input type="text" id="mc-q1" placeholder="Question 1: Type your core question here..." style="width: 100%; padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px; margin-bottom: 8px;" />
+            <p style="color: #ff9f43; font-size: 0.85rem; margin-bottom: 10px; font-weight: bold;">💡 Enter your core problem parameters:</p>
+            <input type="text" id="mc-q1" placeholder="Question 1: Type your main question item here..." style="margin-bottom: 10px;" />
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-              <input type="text" id="mc-q1-a" placeholder="🔹 Option A" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
-              <input type="text" id="mc-q1-b" placeholder="🔹 Option B" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
-              <input type="text" id="mc-q1-c" placeholder="🔹 Option C" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
-              <input type="text" id="mc-q1-d" placeholder="🔹 Option D" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+              <input type="text" id="mc-q1-a" placeholder="🔹 Option A" />
+              <input type="text" id="mc-q1-b" placeholder="🔹 Option B" />
+              <input type="text" id="mc-q1-c" placeholder="🔹 Option C" />
+              <input type="text" id="mc-q1-d" placeholder="🔹 Option D" />
             </div>
 
-            <select id="mc-q1-correct" style="width: 100%; padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: #10b981; border-radius: 4px;">
+            <select id="mc-q1-correct" style="color: #10b981; font-weight: bold;">
               <option value="A">Set Option A as Correct Answer ✔️</option>
               <option value="B">Set Option B as Correct Answer ✔️</option>
               <option value="C">Set Option C as Correct Answer ✔️</option>
@@ -67,14 +80,14 @@
         </div>
 
         <input type="number" id="quest-points" placeholder="points reward..." />
-        <button onclick="addQuest()" style="margin-top: 5px; cursor: pointer;">Add Quest</button>
+        <button onclick="addQuest()">Deploy Quest Live</button>
       </div>
     </div>
 
     <div class="section">
       <h2>📋 Class List</h2>
       <div id="class-list-container">
-        <div class="class-section-header" onclick="toggleSection('grade11-stem')">
+        <div class="class-section-header" onclick="toggleSection('grade11-stem')" style="cursor:pointer; background:#1e1e2f; padding:12px; border-radius:6px; margin-bottom:5px;">
           📁 Grade11-STEM 
         </div>
         <div id="grade11-stem" class="nested-container hidden"></div>
@@ -97,6 +110,145 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMp1p5VBgV0eSKrhhgTBHTgrd3_GeJ5_CRw2rRr78jAx2Ht0VI0z5q0Idnc2sNfXERMQ/exec';
+
+    // 🔄 DROPDOWN TEMPLATE TOGGLE FUNCTION
+    function handleTemplateChange() {
+      const selectedType = document.getElementById('quest-template-type').value;
+      const customBox = document.getElementById('custom-fields');
+      const mcBox = document.getElementById('multiple-choice-fields');
+      const titleInput = document.getElementById('quest-name');
+
+      if (selectedType === 'multiple-choice') {
+        customBox.style.display = 'none';
+        mcBox.style.display = 'block';
+        titleInput.value = "📝 Multiple Choice Quiz";
+      } else {
+        customBox.style.display = 'block';
+        mcBox.style.display = 'none';
+        titleInput.value = "";
+      }
+    }
+
+    // 🚀 NEW QUEST DEPLOY LOGIC
+    function addQuest() {
+      const title = document.getElementById('quest-name').value.trim();
+      const pointsVal = document.getElementById('quest-points').value.trim();
+      const templateType = document.getElementById('quest-template-type').value;
+
+      if (!title || !pointsVal) {
+        alert('Please fill in Title and Points fields!');
+        return;
+      }
+
+      let questPayload = {
+        id: 'quest_' + Date.now(),
+        title: title,
+        points: parseInt(pointsVal),
+        type: templateType
+      };
+
+      if (templateType === 'multiple-choice') {
+        questPayload.question = document.getElementById('mc-q1').value.trim() || "Sample Test Question";
+        questPayload.options = [
+          document.getElementById('mc-q1-a').value.trim() || "Option A",
+          document.getElementById('mc-q1-b').value.trim() || "Option B",
+          document.getElementById('mc-q1-c').value.trim() || "Option C",
+          document.getElementById('mc-q1-d').value.trim() || "Option D"
+        ];
+        questPayload.correctAnswer = document.getElementById('mc-q1-correct').value;
+      } else {
+        questPayload.instructions = document.getElementById('quest-desc').value.trim() || "Complete instructions.";
+      }
+
+      let distributedQuests = JSON.parse(localStorage.getItem('live_quests')) || [];
+      distributedQuests.push(questPayload);
+      localStorage.setItem('live_quests', JSON.stringify(distributedQuests));
+
+      alert(`🚀 Quest "${title}" deployed live successfully!`);
+      
+      // Clear inputs
+      document.getElementById('quest-name').value = '';
+      document.getElementById('quest-points').value = '';
+      document.getElementById('quest-desc').value = '';
+      document.getElementById('mc-q1').value = '';
+      document.getElementById('mc-q1-a').value = '';
+      document.getElementById('mc-q1-b').value = '';
+      document.getElementById('mc-q1-c').value = '';
+      document.getElementById('mc-q1-d').value = '';
+
+      renderTeacherQuestList();
+    }
+
+    // 📊 RENDER QUEST RECORDS ON BOARD
+    function renderTeacherQuestList() {
+      const container = document.getElementById('quest-list');
+      const countEl = document.getElementById('quest-count');
+      if (!container) return;
+
+      const deployedQuests = JSON.parse(localStorage.getItem('live_quests')) || [];
+      if (countEl) countEl.textContent = deployedQuests.length;
+
+      if (deployedQuests.length === 0) {
+        container.innerHTML = `<p style="color:#aaa; font-style:italic; padding:10px;">No deployed quests available yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      deployedQuests.forEach(quest => {
+        const card = document.createElement('div');
+        card.className = 'quest-card';
+        card.style.cssText = "background:#1e1e2f; padding:12px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:between; border:1px solid #3d3d5c;";
+        card.innerHTML = `
+          <span style="flex-grow:1;">${quest.type === 'multiple-choice' ? '📝' : '📌'} <strong>${quest.title}</strong></span>
+          <span class="points-badge" style="background:#4f46e5; padding:2px 8px; border-radius:4px; font-size:0.85rem;">${quest.points} pts</span>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 👥 GOOGLE SHEETS CLASS EXTENSION LOADING
+    function toggleSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (!element) return;
+      element.classList.toggle('hidden');
+      if (!element.classList.contains('hidden')) {
+        loadClassListData(sectionId);
+      }
+    }
+
+    async function loadClassListData(sectionId) {
+      const container = document.getElementById(sectionId);
+      container.innerHTML = "<p style='padding:12px;color:#aaa;'>⏳ Fetching student records...</p>";
+      
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=GRADE 11-STEM`);
+        const students = await res.json();
+        container.innerHTML = ""; 
+        
+        if (!students || students.length === 0 || students.error) {
+          container.innerHTML = "<p style='padding:12px;color:#aaa;'>No students found.</p>";
+          return;
+        }
+
+        document.getElementById('student-count').textContent = students.filter(s => s.name).length;
+        
+        students.forEach(student => {
+          if (!student.name) return;
+          const div = document.createElement('div');
+          div.style.cssText = "padding:10px; background:#161623; border-bottom:1px solid #2a2a3e; color:white; display:flex; justify-content:space-between; align-items:center;";
+          div.innerHTML = `<span>👤 ${student.name}</span><span style="color:#10b981;">XP: ${student.total || 0}</span>`;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        container.innerHTML = "<p style='padding:12px;color:#ef4444;'>❌ Failed to connect to database.</p>";
+      }
+    }
+
+    window.onload = function() {
+      renderTeacherQuestList();
+    };
+  </script>
 </body>
 </html>
