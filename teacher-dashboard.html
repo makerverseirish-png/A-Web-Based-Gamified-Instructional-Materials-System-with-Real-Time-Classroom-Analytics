@@ -38,8 +38,17 @@
     </div>
 
     <div class="section">
-      <h2>📋 Student List</h2>
-      <div class="student-list" id="student-list"></div>
+      <h2>📋 Class List</h2>
+      <div id="class-list-container">
+        
+        <div class="class-section-header" onclick="toggleSection('grade11-stem')">
+          📁 Grade11-STEM ⬇️
+        </div>
+        
+        <div id="grade11-stem" class="nested-container hidden">
+          </div>
+
+      </div>
     </div>
 
     <div class="section">
@@ -61,6 +70,16 @@
     </div>
 
   </div>
+
+  <div id="review-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeReviewModal()">&times;</span>
+      <h3 id="modal-title">Reviewing Quiz</h3>
+      <div id="modal-body">
+        </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
