@@ -1,12 +1,5 @@
-// =============================================
-// iRISE - Connected to Google Sheets
-// =============================================
-
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMp1p5VBgV0eSKrhhgTBHTgrd3_GeJ5_CRw2rRr78jAx2Ht0VI0z5q0Idnc2sNfXERMQ/exec';
 
-// =============================================
-// STUDENT LOGIN & AUTO-REGISTRATION
-// =============================================
 async function studentLogin() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value.trim();
@@ -17,14 +10,12 @@ async function studentLogin() {
     return;
   }
 
-  // Converts dropdown value to match your all-caps Google Sheet tab name perfectly
   if (section === "GRADE 11-STEM" || section === "grade11-stem") {
     section = "GRADE 11-STEM";
   }
 
   try {
     showLoading('Logging in...');
-    
     const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&section=${encodeURIComponent(section)}`);
     const data = await res.json();
 
@@ -43,9 +34,6 @@ async function studentLogin() {
   }
 }
 
-// =============================================
-// TEACHER LOGIN (hardcoded for security)
-// =============================================
 function teacherLogin() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value.trim();
@@ -59,9 +47,6 @@ function teacherLogin() {
   }
 }
 
-// =============================================
-// STUDENT DASHBOARD - Load Data
-// =============================================
 window.onload = async function () {
   const role = localStorage.getItem('role');
   const name = localStorage.getItem('username');
@@ -86,9 +71,6 @@ window.onload = async function () {
   }
 };
 
-// =============================================
-// LOAD STUDENT DATA FROM GOOGLE SHEETS
-// =============================================
 async function loadStudentData(username, section) {
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(section)}`);
@@ -116,15 +98,11 @@ async function loadStudentData(username, section) {
     if (total >= 100) unlockBadge(1);
 
     loadLeaderboard(students, section);
-
   } catch (err) {
     console.error('Failed to load student data:', err);
   }
 }
 
-// =============================================
-// LEADERBOARD - Per Quest Ranking
-// =============================================
 function loadLeaderboard(students, section) {
   const leaderboardEl = document.getElementById('leaderboard');
   if (!leaderboardEl) return;
@@ -163,9 +141,6 @@ function loadLeaderboard(students, section) {
   leaderboardEl.innerHTML = html;
 }
 
-// =============================================
-// TEACHER - LOAD SECTION DATA
-// =============================================
 async function loadTeacherData(section) {
   if (!section) return;
   try {
@@ -191,16 +166,12 @@ async function loadTeacherData(section) {
       `;
       listEl.appendChild(card);
     });
-
   } catch (err) {
     hideLoading();
     console.error('Failed to load teacher data:', err);
   }
 }
 
-// =============================================
-// TEACHER - ADD QUEST
-// =============================================
 function addQuest() {
   const name = document.getElementById('quest-name').value.trim();
   const pointsVal = document.getElementById('quest-points').value.trim();
@@ -227,9 +198,6 @@ function addQuest() {
   document.getElementById('quest-points').value = '';
 }
 
-// =============================================
-// TEACHER - AWARD BONUS POINTS
-// =============================================
 async function awardBonus(username, section) {
   try {
     const res = await fetch(`${SCRIPT_URL}?action=awardBonus&username=${encodeURIComponent(username)}&section=${encodeURIComponent(section)}&bonus=50`);
@@ -243,9 +211,6 @@ async function awardBonus(username, section) {
   }
 }
 
-// =============================================
-// COMPLETE QUEST (Student Side)
-// =============================================
 async function completeQuest(btn, questName, points) {
   const username = localStorage.getItem('username');
   const section = localStorage.getItem('section');
@@ -268,4 +233,130 @@ async function completeQuest(btn, questName, points) {
       btn.textContent = 'Complete';
       alert('Failed to save. Please try again.');
     }
-  } catch (err
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Complete';
+    alert('Connection error. Please try again.');
+  }
+}
+
+function unlockBadge(index) {
+  const badges = document.querySelectorAll('.badge');
+  if (badges[index]) {
+    badges[index].classList.remove('locked');
+    badges[index].classList.add('unlocked');
+  }
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+function showLoading(msg = 'Loading...') {
+  let el = document.getElementById('loading-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; color: white; font-size: 1.2rem;
+    `;
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = 'flex';
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  if (el) el.style.display = 'none';
+}
+
+function toggleSection(sectionId) {
+  const element = document.getElementById(sectionId);
+  if (!element) return;
+  element.classList.toggle('hidden');
+  if (!element.classList.contains('hidden')) {
+    loadClassListData(sectionId);
+  }
+}
+
+async function loadClassListData(sectionId) {
+  const container = document.getElementById(sectionId);
+  container.innerHTML = "<p style='padding:12px;color:#aaa;'>⏳ Fetching student records...</p>";
+  
+  let sheetSectionQuery = "GRADE 11-STEM";
+  if (sectionId === "grade11-stem" || sectionId === "GRADE 11-STEM") {
+    sheetSectionQuery = "GRADE 11-STEM";
+  }
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(sheetSectionQuery)}`);
+    const students = await res.json();
+    container.innerHTML = ""; 
+    
+    if (!students || students.length === 0 || students.error) {
+      container.innerHTML = "<p style='padding:12px;color:#aaa;'>No students found in this section.</p>";
+      return;
+    }
+    
+    students.forEach(student => {
+      if (!student.name) return;
+      const studentWrapper = document.createElement('div');
+      studentWrapper.className = 'student-dropdown-wrapper';
+      studentWrapper.innerHTML = `
+        <div class="student-trigger" onclick="this.nextElementSibling.classList.toggle('hidden')">
+          <span>👤 ${student.name}</span>
+          <span style="color:#aaa; font-size:0.85rem;">Click to view Quizzes ⬇️</span>
+        </div>
+        <div class="student-quizzes hidden">
+          <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 1', ${student.quest1 || 0})">
+            <span>📝 Quiz 1</span>
+            <span class="points-text">Points: ${student.quest1 || 0}</span>
+          </div>
+          <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 2', ${student.quest2 || 0})">
+            <span>📝 Quiz 2</span>
+            <span class="points-text">Points: ${student.quest2 || 0}</span>
+          </div>
+          <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 3', ${student.quest3 || 0})">
+            <span>📝 Quiz 3</span>
+            <span class="points-text">Points: ${student.quest3 || 0}</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(studentWrapper);
+    });
+  } catch (err) {
+    console.error("Error loading class list data:", err);
+    container.innerHTML = "<p style='padding:12px;color:#ef4444;'>❌ Failed to reach database connection.</p>";
+  }
+}
+
+function reviewStudentQuiz(studentName, quizName, pointsValue) {
+  const modal = document.getElementById('review-modal');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  
+  title.innerText = `🔎 Reviewing: ${studentName}`;
+  body.innerHTML = `
+    <div class="review-summary">ℹ️ Performance Overview – ${quizName}</div>
+    <div style="margin-bottom:15px; color:#aaa;"><strong>Score Earned:</strong> ${pointsValue} Points</div>
+    <hr style="border-color:#2a2a3e; margin-bottom:15px;">
+    <div class="review-question correct">
+      <p><strong>Q1: What is the main microcontroller on an Arduino Uno board?</strong></p>
+      <p style="margin-top:5px; color:#10b981;">✔️ Response: ATmega328P <span class="status-tag ok">Correct</span></p>
+    </div>
+    <div class="review-question incorrect">
+      <p><strong>Q2: What digital signal level provides exactly 0 Volts?</strong></p>
+      <p style="margin-top:5px; color:#ef4444;">❌ Response: HIGH</p>
+      <p class="correct-correction">💡 Accurate Answer: LOW <span class="status-tag bad">Incorrect</span></p>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+}
+
+function closeReviewModal() {
+  document.getElementById('review-modal').classList.add('hidden');
+}
