@@ -20,8 +20,7 @@
       </div>
       <div class="stat-card">
         <h3>📚 Quests</h3>
-        <p id="quest-count">3</p>
-      </div>
+        <p id="quest-count">0</p> </div>
       <div class="stat-card">
         <h3>🏆 Top points</h3>
         <p id="top-points">0 points</p>
@@ -30,43 +29,62 @@
 
     <div class="section">
       <h2>➕ Add New Quest</h2>
-      <div class="add-quest-form">
+      <div class="add-quest-form" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px;">
+        
+        <div class="form-group">
+          <label for="quest-template-type" style="color: #aaa; display: block; margin-bottom: 5px; font-size: 0.9rem;">Activity Template Type:</label>
+          <select id="quest-template-type" onchange="handleTemplateChange()" style="width: 100%; padding: 10px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 6px;">
+            <option value="custom">✨ Custom Text Quest</option>
+            <option value="multiple-choice">📝 Multiple Choice Quiz Template</option>
+          </select>
+        </div>
+
         <input type="text" id="quest-name" placeholder="Quest name..." />
+        
+        <div id="template-editor-box" style="padding: 12px; background: #161623; border-left: 4px solid #4f46e5; border-radius: 4px;">
+          <div id="custom-fields">
+            <textarea id="quest-desc" placeholder="Provide task instructions for the students here..." style="width: 100%; height: 60px; padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px; resize: none;"></textarea>
+          </div>
+
+          <div id="multiple-choice-fields" style="display: none;">
+            <p style="color: #ff9f43; font-size: 0.85rem; margin-bottom: 10px;">💡 Type your question text and choices below. Students will answer this in their portals.</p>
+            <input type="text" id="mc-q1" placeholder="Question 1: Type your core question here..." style="width: 100%; padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px; margin-bottom: 8px;" />
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <input type="text" id="mc-q1-a" placeholder="🔹 Option A" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
+              <input type="text" id="mc-q1-b" placeholder="🔹 Option B" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
+              <input type="text" id="mc-q1-c" placeholder="🔹 Option C" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
+              <input type="text" id="mc-q1-d" placeholder="🔹 Option D" style="padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: white; border-radius: 4px;" />
+            </div>
+
+            <select id="mc-q1-correct" style="width: 100%; padding: 8px; background: #1e1e2f; border: 1px solid #3d3d5c; color: #10b981; border-radius: 4px;">
+              <option value="A">Set Option A as Correct Answer ✔️</option>
+              <option value="B">Set Option B as Correct Answer ✔️</option>
+              <option value="C">Set Option C as Correct Answer ✔️</option>
+              <option value="D">Set Option D as Correct Answer ✔️</option>
+            </select>
+          </div>
+        </div>
+
         <input type="number" id="quest-points" placeholder="points reward..." />
-        <button onclick="addQuest()">Add Quest</button>
+        <button onclick="addQuest()" style="margin-top: 5px; cursor: pointer;">Add Quest</button>
       </div>
     </div>
 
     <div class="section">
       <h2>📋 Class List</h2>
       <div id="class-list-container">
-        
         <div class="class-section-header" onclick="toggleSection('grade11-stem')">
           📁 Grade11-STEM 
         </div>
-        
-        <div id="grade11-stem" class="nested-container hidden">
-          </div>
-
+        <div id="grade11-stem" class="nested-container hidden"></div>
       </div>
     </div>
 
     <div class="section">
       <h2>📚 Quest List</h2>
       <div id="quest-list">
-        <div class="quest-card">
-          <span>📖 Read Chapter 1</span>
-          <span class="points-badge">50 points</span>
         </div>
-        <div class="quest-card">
-          <span>✏️ Answer Quiz 1</span>
-          <span class="points-badge">100 points</span>
-        </div>
-        <div class="quest-card">
-          <span>🔬 Submit Lab Report</span>
-          <span class="points-badge">150 points</span>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -75,8 +93,7 @@
     <div class="modal-content">
       <span class="close-modal" onclick="closeReviewModal()">&times;</span>
       <h3 id="modal-title">Reviewing Quiz</h3>
-      <div id="modal-body">
-        </div>
+      <div id="modal-body"></div>
     </div>
   </div>
 
