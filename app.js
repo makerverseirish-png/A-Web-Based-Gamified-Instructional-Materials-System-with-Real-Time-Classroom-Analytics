@@ -44,7 +44,6 @@ function teacherLogin() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value.trim();
 
-  // Change these credentials as needed
   if (user === 'teacher' && pass === 'irise2024') {
     localStorage.setItem('role', 'teacher');
     localStorage.setItem('username', user);
@@ -62,18 +61,15 @@ window.onload = async function () {
   const name = localStorage.getItem('username');
   const section = localStorage.getItem('section');
 
-  // Welcome message
   const welcomeEl = document.getElementById('welcome-msg');
   if (welcomeEl && name) {
     welcomeEl.textContent = 'Welcome, ' + name + '!';
   }
 
-  // Load student dashboard data
   if (role === 'student' && name && section) {
     await loadStudentData(name, section);
   }
 
-  // Load teacher dashboard data
   if (role === 'teacher') {
     const sectionSelect = document.getElementById('section-select');
     if (sectionSelect) {
@@ -95,7 +91,6 @@ async function loadStudentData(username, section) {
     const student = students.find(s => s.name === username);
     if (!student) return;
 
-    // Update points display
     const q1El = document.getElementById('quest1-points');
     const q2El = document.getElementById('quest2-points');
     const q3El = document.getElementById('quest3-points');
@@ -106,17 +101,14 @@ async function loadStudentData(username, section) {
     if (q3El) q3El.textContent = (student.quest3 || 0) + ' Points';
     if (totalEl) totalEl.textContent = (student.total || 0) + ' Points';
 
-    // Update level
     const total = student.total || 0;
     const level = Math.floor(total / 100) + 1;
     const levelEl = document.getElementById('level');
     if (levelEl) levelEl.textContent = 'Level ' + level;
 
-    // Unlock badges
     if (total >= 50) unlockBadge(0);
     if (total >= 100) unlockBadge(1);
 
-    // Load leaderboard
     loadLeaderboard(students, section);
 
   } catch (err) {
@@ -131,7 +123,6 @@ function loadLeaderboard(students, section) {
   const leaderboardEl = document.getElementById('leaderboard');
   if (!leaderboardEl) return;
 
-  // Sort by total points
   const sorted = [...students]
     .filter(s => s.name)
     .sort((a, b) => (b.total || 0) - (a.total || 0));
@@ -177,11 +168,9 @@ async function loadTeacherData(section) {
     const students = await res.json();
     hideLoading();
 
-    // Update student count
     const countEl = document.getElementById('student-count');
     if (countEl) countEl.textContent = students.filter(s => s.name).length;
 
-    // Load student list
     const listEl = document.getElementById('student-list');
     if (!listEl) return;
 
@@ -322,37 +311,42 @@ function hideLoading() {
   const el = document.getElementById('loading-overlay');
   if (el) el.style.display = 'none';
 }
-// 1. Handles opening and closing the nested folder slots when clicked
+
+// =============================================
+// FIX: CLASS LIST ACCORDION & REVIEW SYSTEM
+// =============================================
 function toggleSection(sectionId) {
   const element = document.getElementById(sectionId);
   if (!element) return;
   
   element.classList.toggle('hidden');
   
-  // If the folder is opened, fetch the live database records instantly
   if (!element.classList.contains('hidden')) {
     loadClassListData(sectionId);
   }
 }
 
-// 2. Reaches into Google Sheets, gets student data, and builds the dropdown lists
-async function loadClassListData(sectionName) {
-  const container = document.getElementById(sectionName);
-  container.innerHTML = "<p style='padding:10px;color:#aaa;'>⏳ Fetching student records...</p>";
+async function loadClassListData(sectionId) {
+  const container = document.getElementById(sectionId);
+  container.innerHTML = "<p style='padding:12px;color:#aaa;'>⏳ Fetching student records...</p>";
   
+  // FIX: Maps the element ID container 'grade11-stem' into the exact layout spelling expected by Google Sheets
+  let sheetSectionQuery = "Grade11-STEM";
+  if (sectionId === "grade11-stem") {
+    sheetSectionQuery = "Grade11-STEM";
+  }
+
   try {
-    // Queries your Google Apps Script URL using the section identity string
-    const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(sectionName)}`);
+    const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(sheetSectionQuery)}`);
     const students = await res.json();
     
-    container.innerHTML = ""; // Wipe loader message
+    container.innerHTML = ""; 
     
     if (!students || students.length === 0) {
-      container.innerHTML = "<p style='padding:10px;color:#aaa;'>No students found in this section.</p>";
+      container.innerHTML = "<p style='padding:12px;color:#aaa;'>No students found in this section.</p>";
       return;
     }
     
-    // Cycle through rows and build the nested student items
     students.forEach(student => {
       if (!student.name) return;
       
@@ -362,7 +356,7 @@ async function loadClassListData(sectionName) {
       studentWrapper.innerHTML = `
         <div class="student-trigger" onclick="this.nextElementSibling.classList.toggle('hidden')">
           <span>👤 ${student.name}</span>
-          <span style="color:#aaa; font-size:0.9rem;">Click to view Quizzes</span>
+          <span style="color:#aaa; font-size:0.85rem;">Click to view Quizzes ⬇️</span>
         </div>
         <div class="student-quizzes hidden">
           <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 1', ${student.quest1 || 0})">
@@ -383,11 +377,10 @@ async function loadClassListData(sectionName) {
     });
   } catch (err) {
     console.error("Error loading class list data:", err);
-    container.innerHTML = "<p style='padding:10px;color:#ef4444;'>❌ Failed to reach database connection.</p>";
+    container.innerHTML = "<p style='padding:12px;color:#ef4444;'>❌ Failed to reach database connection.</p>";
   }
 }
 
-// 3. Spawns the read-only quiz checker sheet layout on screen
 function reviewStudentQuiz(studentName, quizName, pointsValue) {
   const modal = document.getElementById('review-modal');
   const title = document.getElementById('modal-title');
@@ -395,7 +388,6 @@ function reviewStudentQuiz(studentName, quizName, pointsValue) {
   
   title.innerText = `🔎 Reviewing: ${studentName}`;
   
-  // Static read-only template showing response evaluations
   body.innerHTML = `
     <div class="review-summary">ℹ️ Performance Overview – ${quizName}</div>
     <div style="margin-bottom:15px; color:#aaa;"><strong>Score Earned:</strong> ${pointsValue} Points</div>
@@ -416,7 +408,6 @@ function reviewStudentQuiz(studentName, quizName, pointsValue) {
   modal.classList.remove('hidden');
 }
 
-// 4. Closes out the read-only view modal popup
 function closeReviewModal() {
   document.getElementById('review-modal').classList.add('hidden');
 }
