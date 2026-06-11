@@ -10,11 +10,16 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMp1p5VBgV0eSKrhhgT
 async function studentLogin() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value.trim();
-  const section = document.getElementById('section').value.trim();
+  let section = document.getElementById('section').value.trim(); // Changed to 'let' to allow value transformation
 
   if (!user || !pass || !section) {
     alert('Please enter username, password, and section.');
     return;
+  }
+
+  // ✨ FIX: Converts dropdown value to match your all-caps Google Sheet tab name perfectly
+  if (section === "GRADE 11-STEM" || section === "grade11-stem") {
+    section = "GRADE 11-STEM";
   }
 
   try {
@@ -330,10 +335,10 @@ async function loadClassListData(sectionId) {
   const container = document.getElementById(sectionId);
   container.innerHTML = "<p style='padding:12px;color:#aaa;'>⏳ Fetching student records...</p>";
   
-  // FIX: Maps the element ID container 'grade11-stem' into the exact layout spelling expected by Google Sheets
-  let sheetSectionQuery = "Grade11-STEM";
-  if (sectionId === "grade11-stem") {
-    sheetSectionQuery = "Grade11-STEM";
+  // ✨ FIX: Force-maps container lookups to look up your uppercase "GRADE 11-STEM" sheet tab perfectly
+  let sheetSectionQuery = "GRADE 11-STEM";
+  if (sectionId === "grade11-stem" || sectionId === "GRADE 11-STEM") {
+    sheetSectionQuery = "GRADE 11-STEM";
   }
 
   try {
@@ -342,7 +347,7 @@ async function loadClassListData(sectionId) {
     
     container.innerHTML = ""; 
     
-    if (!students || students.length === 0) {
+    if (!students || students.length === 0 || students.error) {
       container.innerHTML = "<p style='padding:12px;color:#aaa;'>No students found in this section.</p>";
       return;
     }
