@@ -17,7 +17,7 @@ async function studentLogin() {
     return;
   }
 
-  // ✨ FIX: Converts dropdown value to match your all-caps Google Sheet tab name perfectly
+  // Converts dropdown value to match your all-caps Google Sheet tab name perfectly
   if (section === "GRADE 11-STEM" || section === "grade11-stem") {
     section = "GRADE 11-STEM";
   }
@@ -25,7 +25,6 @@ async function studentLogin() {
   try {
     showLoading('Logging in...');
     
-    // Send standard login request to Apps Script backend
     const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&section=${encodeURIComponent(section)}`);
     const data = await res.json();
 
@@ -36,7 +35,6 @@ async function studentLogin() {
       window.location.href = 'student-dashboard.html';
     } else {
       hideLoading();
-      // Display the specific message returned by your sheet engine backend
       alert(data.message || 'Invalid username or password. Please try again.');
     }
   } catch (err) {
@@ -173,4 +171,101 @@ async function loadTeacherData(section) {
   try {
     showLoading('Loading students...');
     const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(section)}`);
-    const students =
+    const students = await res.json();
+    hideLoading();
+
+    const countEl = document.getElementById('student-count');
+    if (countEl) countEl.textContent = students.filter(s => s.name).length;
+
+    const listEl = document.getElementById('student-list');
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+    students.filter(s => s.name).forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'student-card';
+      card.innerHTML = `
+        <span class="student-name">👤 ${s.name}</span>
+        <span class="points-badge">${s.total || 0} Points</span>
+        <button class="bonus-btn" onclick="awardBonus('${s.name}', '${section}')">+50 Bonus</button>
+      `;
+      listEl.appendChild(card);
+    });
+
+  } catch (err) {
+    hideLoading();
+    console.error('Failed to load teacher data:', err);
+  }
+}
+
+// =============================================
+// TEACHER - ADD QUEST
+// =============================================
+function addQuest() {
+  const name = document.getElementById('quest-name').value.trim();
+  const pointsVal = document.getElementById('quest-points').value.trim();
+
+  if (!name || !pointsVal) {
+    alert('Please fill in both fields!');
+    return;
+  }
+  if (parseInt(pointsVal) <= 0) {
+    alert('Points reward must be greater than 0!');
+    return;
+  }
+
+  const list = document.getElementById('quest-list');
+  const card = document.createElement('div');
+  card.className = 'quest-card';
+  card.innerHTML = `<span>📌 ${name}</span><span class="points-badge">${pointsVal} Points</span>`;
+  list.appendChild(card);
+
+  const count = document.getElementById('quest-count');
+  if (count) count.textContent = parseInt(count.textContent) + 1;
+
+  document.getElementById('quest-name').value = '';
+  document.getElementById('quest-points').value = '';
+}
+
+// =============================================
+// TEACHER - AWARD BONUS POINTS
+// =============================================
+async function awardBonus(username, section) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=awardBonus&username=${encodeURIComponent(username)}&section=${encodeURIComponent(section)}&bonus=50`);
+    const data = await res.json();
+    if (data.success) {
+      alert(`+50 Bonus Points awarded to ${username}! ✅`);
+      loadTeacherData(section);
+    }
+  } catch (err) {
+    console.error('Failed to award bonus:', err);
+  }
+}
+
+// =============================================
+// COMPLETE QUEST (Student Side)
+// =============================================
+async function completeQuest(btn, questName, points) {
+  const username = localStorage.getItem('username');
+  const section = localStorage.getItem('section');
+
+  if (!username || !section) return;
+
+  try {
+    btn.disabled = true;
+    btn.textContent = '⏳ Saving...';
+
+    const res = await fetch(`${SCRIPT_URL}?action=updatePoints&username=${encodeURIComponent(username)}&section=${encodeURIComponent(section)}&quest=${encodeURIComponent(questName)}&points=${points}`);
+    const data = await res.json();
+
+    if (data.success) {
+      btn.parentElement.classList.add('done');
+      btn.textContent = '✅ Done';
+      await loadStudentData(username, section);
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Complete';
+      alert('Failed to save. Please try again.');
+    }
+  } catch (err
