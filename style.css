@@ -1,6 +1,12 @@
+/* ==========================================================================
+   1. GLOBAL STYLES & RESET
+   ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; }
 
+/* ==========================================================================
+   2. HERO & LANDING PAGE
+   ========================================================================== */
 .hero {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; height: 100vh; text-align: center;
@@ -14,6 +20,9 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; }
 .btn-student { background: #4f46e5; color: #fff; }
 .btn-teacher { background: #10b981; color: #fff; }
 
+/* ==========================================================================
+   3. LOGIN BOX
+   ========================================================================== */
 .login-box {
   max-width: 400px; margin: 10vh auto; background: #1e1e2e;
   padding: 2rem; border-radius: 12px; text-align: center;
@@ -28,6 +37,10 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; }
   background: #4f46e5; color: #fff; border: none;
   border-radius: 8px; font-size: 1rem; cursor: pointer;
 }
+
+/* ==========================================================================
+   4. DASHBOARD BASE LAYOUT
+   ========================================================================== */
 .dashboard { padding: 1rem; }
 .dash-header { display: flex; justify-content: space-between; align-items: center;
   background: #1e1e2e; padding: 1rem 2rem; border-radius: 12px; margin-bottom: 1.5rem; }
@@ -43,6 +56,9 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; }
 .section { background: #1e1e2e; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; }
 .section h2 { margin-bottom: 1rem; }
 
+/* ==========================================================================
+   5. QUEST MANAGEMENT
+   ========================================================================== */
 .quest-list { display: flex; flex-direction: column; gap: 0.8rem; }
 .quest-card { display: flex; justify-content: space-between; align-items: center;
   background: #2a2a3e; padding: 1rem; border-radius: 8px; }
@@ -50,20 +66,81 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; }
   padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
 .quest-card.done { opacity: 0.5; }
 
-.badges-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.badge { padding: 0.5rem 1rem; border-radius: 20px; background: #2a2a3e; }
-.badge.locked { opacity: 0.4; }
-.badge.unlocked { background: #4f46e5; opacity: 1; }
 .add-quest-form { display: flex; gap: 0.8rem; flex-wrap: wrap; }
 .add-quest-form input { flex: 1; padding: 0.7rem; border-radius: 8px;
   border: none; background: #2a2a3e; color: #fff; }
 .add-quest-form button { background: #10b981; color: #fff; border: none;
   padding: 0.7rem 1.5rem; border-radius: 8px; cursor: pointer; }
 
+/* ==========================================================================
+   6. REWARDS, BADGES & OLD STUDENT LIST COMPATIBILITY
+   ========================================================================== */
+.badges-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.badge { padding: 0.5rem 1rem; border-radius: 20px; background: #2a2a3e; }
+.badge.locked { opacity: 0.4; }
+.badge.unlocked { background: #4f46e5; opacity: 1; }
+
 .student-card { display: flex; justify-content: space-between; align-items: center;
   background: #2a2a3e; padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem; }
 .student-card button { background: #f59e0b; color: #fff; border: none;
   padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; }
 
-.xp-badge { background: #4f46e5; padding: 0.3rem 0.8rem;
+.xp-badge, .points-badge { background: #4f46e5; padding: 0.3rem 0.8rem;
   border-radius: 20px; font-size: 0.9rem; }
+
+/* ==========================================================================
+   7. FIX: NEW MASTER CLASS LIST DRILL-DOWN STYLING
+   ========================================================================== */
+.hidden { display: none !important; } /* Core utility to hide/toggle lists */
+
+.class-section-header { 
+  background: #2a2a3e; padding: 15px; font-weight: bold; 
+  cursor: pointer; border-radius: 8px; margin-bottom: 5px; 
+  color: #10b981; border: 1px solid #3e3e5e; transition: background 0.2s;
+}
+.class-section-header:hover { background: #34344e; }
+
+.nested-container { padding-left: 15px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
+.student-dropdown-wrapper { margin: 6px 0; border-radius: 8px; overflow: hidden; border: 1px solid #2a2a3e; }
+
+.student-trigger { 
+  padding: 12px; background: #2a2a3e; color: #fff; 
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+}
+.student-trigger:hover { background: #34344e; }
+.student-quizzes { padding: 6px 12px; background: #1e1e2e; display: flex; flex-direction: column; gap: 4px; }
+
+/* Clickable individual quiz lines */
+.quiz-item-link { 
+  padding: 8px 12px; font-size: 0.95rem; cursor: pointer; 
+  display: flex; justify-content: space-between; border-radius: 6px; 
+  transition: background 0.2s, color 0.2s; color: #ccc; 
+}
+.quiz-item-link:hover { background: #4f46e5; color: #fff; }
+.points-text { font-weight: bold; color: #10b981; }
+
+/* ==========================================================================
+   8. FIX: READ-ONLY POPUP MODAL STYLING
+   ========================================================================== */
+.modal { 
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+  background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; 
+  justify-content: center; z-index: 9999; 
+}
+.modal-content { 
+  background: #1e1e2f; padding: 25px; border-radius: 12px; 
+  width: 90%; max-width: 500px; color: #fff; position: relative; 
+  border: 2px solid #4f46e5; box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
+}
+.close-modal { position: absolute; top: 12px; right: 18px; font-size: 1.8rem; cursor: pointer; color: #aaa; line-height: 1; }
+.close-modal:hover { color: #ef4444; }
+
+.review-summary { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; color: #10b981; border-bottom: 1px solid #2a2a3e; padding-bottom: 10px; }
+.review-question { margin-bottom: 12px; padding: 12px; border-left: 4px solid; border-radius: 6px; background: #2a2a3e; }
+.review-question.correct { border-color: #10b981; }
+.review-question.incorrect { border-color: #ef4444; }
+
+.status-tag { font-size: 0.8rem; font-weight: bold; margin-left: 6px; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; }
+.status-tag.ok { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.status-tag.bad { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.correct-correction { color: #10b981; margin-top: 6px; font-size: 0.9rem; font-weight: 500; }
