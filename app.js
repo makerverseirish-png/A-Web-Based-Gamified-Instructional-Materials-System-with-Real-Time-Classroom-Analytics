@@ -322,3 +322,101 @@ function hideLoading() {
   const el = document.getElementById('loading-overlay');
   if (el) el.style.display = 'none';
 }
+// 1. Handles opening and closing the nested folder slots when clicked
+function toggleSection(sectionId) {
+  const element = document.getElementById(sectionId);
+  if (!element) return;
+  
+  element.classList.toggle('hidden');
+  
+  // If the folder is opened, fetch the live database records instantly
+  if (!element.classList.contains('hidden')) {
+    loadClassListData(sectionId);
+  }
+}
+
+// 2. Reaches into Google Sheets, gets student data, and builds the dropdown lists
+async function loadClassListData(sectionName) {
+  const container = document.getElementById(sectionName);
+  container.innerHTML = "<p style='padding:10px;color:#aaa;'>⏳ Fetching student records...</p>";
+  
+  try {
+    // Queries your Google Apps Script URL using the section identity string
+    const res = await fetch(`${SCRIPT_URL}?action=getStudents&section=${encodeURIComponent(sectionName)}`);
+    const students = await res.json();
+    
+    container.innerHTML = ""; // Wipe loader message
+    
+    if (!students || students.length === 0) {
+      container.innerHTML = "<p style='padding:10px;color:#aaa;'>No students found in this section.</p>";
+      return;
+    }
+    
+    // Cycle through rows and build the nested student items
+    students.forEach(student => {
+      if (!student.name) return;
+      
+      const studentWrapper = document.createElement('div');
+      studentWrapper.className = 'student-dropdown-wrapper';
+      
+      studentWrapper.innerHTML = `
+        <div class="student-trigger" onclick="this.nextElementSibling.classList.toggle('hidden')">
+          <span>👤 ${student.name}</span>
+          <span style="color:#aaa; font-size:0.9rem;">Click to view Quizzes</span>
+        </div>
+        <div class="student-quizzes hidden">
+          <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 1', ${student.quest1 || 0})">
+            <span>📝 Quiz 1</span>
+            <span class="points-text">Points: ${student.quest1 || 0}</span>
+          </div>
+          <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 2', ${student.quest2 || 0})">
+            <span>📝 Quiz 2</span>
+            <span class="points-text">Points: ${student.quest2 || 0}</span>
+          </div>
+          <div class="quiz-item-link" onclick="reviewStudentQuiz('${student.name}', 'Quiz 3', ${student.quest3 || 0})">
+            <span>📝 Quiz 3</span>
+            <span class="points-text">Points: ${student.quest3 || 0}</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(studentWrapper);
+    });
+  } catch (err) {
+    console.error("Error loading class list data:", err);
+    container.innerHTML = "<p style='padding:10px;color:#ef4444;'>❌ Failed to reach database connection.</p>";
+  }
+}
+
+// 3. Spawns the read-only quiz checker sheet layout on screen
+function reviewStudentQuiz(studentName, quizName, pointsValue) {
+  const modal = document.getElementById('review-modal');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  
+  title.innerText = `🔎 Reviewing: ${studentName}`;
+  
+  // Static read-only template showing response evaluations
+  body.innerHTML = `
+    <div class="review-summary">ℹ️ Performance Overview – ${quizName}</div>
+    <div style="margin-bottom:15px; color:#aaa;"><strong>Score Earned:</strong> ${pointsValue} Points</div>
+    <hr style="border-color:#2a2a3e; margin-bottom:15px;">
+    
+    <div class="review-question correct">
+      <p><strong>Q1: What is the main microcontroller on an Arduino Uno board?</strong></p>
+      <p style="margin-top:5px; color:#10b981;">✔️ Response: ATmega328P <span class="status-tag ok">Correct</span></p>
+    </div>
+    
+    <div class="review-question incorrect">
+      <p><strong>Q2: What digital signal level provides exactly 0 Volts?</strong></p>
+      <p style="margin-top:5px; color:#ef4444;">❌ Response: HIGH</p>
+      <p class="correct-correction">💡 Accurate Answer: LOW <span class="status-tag bad">Incorrect</span></p>
+    </div>
+  `;
+  
+  modal.classList.remove('hidden');
+}
+
+// 4. Closes out the read-only view modal popup
+function closeReviewModal() {
+  document.getElementById('review-modal').classList.add('hidden');
+}
